@@ -415,7 +415,11 @@ namespace Blog.Controllers
         {
             if (!ModelState.IsValid)
             {
+
+
                 return View(model);
+
+
             }
 
             // The following code protects for brute force attacks against the two factor codes.
