@@ -1,0 +1,51 @@
+@model Blog.Models.Post
+
+@{
+    ViewData["Title"] = "Details";
+
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Post</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ReleaseDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ReleaseDate)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Text)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Text)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Author)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Author)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.PostId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<h2>Comments</h2>
+
+<p>
+    <a asp-controller="Comments" asp-action="Create" asp-route-PostId="@Model.PostId">Create New</a>
+</p>
+
+@Html.Partial("/Views/Comments/Index.cshtml", Model.Comments)

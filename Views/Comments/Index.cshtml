@@ -1,0 +1,45 @@
+@model IEnumerable<Blog.Models.Comment>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Index</h2>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Text)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Author)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReleaseDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Text)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                <a asp-controller="Comments" asp-action="Edit" asp-route-id="@item.CommentId">Edit</a> |
+               
+                <a asp-controller="Comments" asp-action="Delete" asp-route-id="@item.CommentId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
