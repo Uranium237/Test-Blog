@@ -86,16 +86,29 @@ namespace Blog.Controllers
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var userId = user?.Id;
+            var userR = await _userManager.GetRolesAsync(user);
 
             var comment = await _context.Comments.SingleOrDefaultAsync(m => m.CommentId == id);
             if (comment == null)
             {
                 return NotFound();
             }
+
+            if (userR.All(u => u != "Admin"))
+            {
+                if (userId != comment.UserId)
+                { return RedirectToAction("AccessDenied", "Account"); }
+            }
+
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            
             return View(comment);
         }
 
@@ -149,12 +162,25 @@ namespace Blog.Controllers
         [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Delete(int? id)
         {
+            var comment = await _context.Comments.SingleOrDefaultAsync(m => m.CommentId == id);
+
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var userId = user?.Id;
+            var userR = await _userManager.GetRolesAsync(user);
+
+            if (userR.All(u => u != "Admin"))
+            {
+                if (userId != comment.UserId)
+                { return RedirectToAction("AccessDenied", "Account"); }
+            }
+
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var comment = await _context.Comments.SingleOrDefaultAsync(m => m.CommentId == id);
+            //var comment = await _context.Comments.SingleOrDefaultAsync(m => m.CommentId == id);
             if (comment == null)
             {
                 return NotFound();
