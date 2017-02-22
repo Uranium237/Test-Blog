@@ -30,5 +30,7 @@ namespace Blog.Models
         public ApplicationUser User { get; set; }
 
         public string Author { get; set; }
+
+        public List<Image> Images { get; set; }
     }
 }

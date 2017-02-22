@@ -9,6 +9,10 @@ using Blog.Data;
 using Blog.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+using System.IO;
 
 namespace Blog.Controllers
 {
@@ -17,12 +21,21 @@ namespace Blog.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private IHostingEnvironment _environment;
+
         public PostsController(
             ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IHostingEnvironment environment)
         {
             _context = context;
             _userManager = userManager;
+            _environment = environment; 
+        }
+
+        public IActionResult UploadFiles()
+        {
+            return View();
         }
 
         // GET: Posts
@@ -39,7 +52,7 @@ namespace Blog.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts.Include(p => p.Comments).SingleOrDefaultAsync(m => m.PostId == id);
+            var post = await _context.Posts.Include(p => p.Comments).Include(k => k.Images).SingleOrDefaultAsync(m => m.PostId == id);
             if (post == null)
             {
                 return NotFound();
@@ -73,6 +86,36 @@ namespace Blog.Controllers
 
             if (ModelState.IsValid)
             {
+
+                var files = HttpContext.Request.Form.Files;
+                foreach (var Image in files)
+                {
+                    if (Image != null && Image.Length > 0)
+                    {
+
+                        var file = Image;
+                        var uploads = Path.Combine(_environment.WebRootPath, "");
+
+                        if (file.Length > 0)
+                        {
+                            var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+
+                            //System.Console.WriteLine(fileName);
+                            using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
+                            {
+                                var image = new Image();
+                                
+                                await file.CopyToAsync(fileStream);
+                                image.ImageName = file.FileName;
+                                post.Images = new List<Image>();
+                                post.Images.Add(image);
+                            }
+
+
+                        }
+                    }
+                }
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
@@ -80,16 +123,31 @@ namespace Blog.Controllers
             return View(post);
         }
 
+    
+
+
         // GET: Posts/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var userId = user?.Id;
+            var userR = await _userManager.GetRolesAsync(user);
+
+            var post = await _context.Posts.Include(k => k.Images).SingleOrDefaultAsync(m => m.PostId == id);
+
+            if (userR.All(u => u != "Admin"))
+            {
+                if (userId != post.UserId)
+                { return RedirectToAction("AccessDenied", "Account"); }
+            }
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Posts.SingleOrDefaultAsync(m => m.PostId == id);
+            
             if (post == null)
             {
                 return NotFound();
@@ -105,6 +163,8 @@ namespace Blog.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("PostId,ReleaseDate,Text,Title,Author,UserId")] Post post)
         {
+
+            //var post1 = await post.Include(k => k.Images);
             var user = await _userManager.GetUserAsync(HttpContext.User);
             var userId = user?.Id;
             var userR = await _userManager.GetRolesAsync(user);
@@ -124,6 +184,36 @@ namespace Blog.Controllers
             {
                 try
                 {
+                    var files = HttpContext.Request.Form.Files;
+                    foreach (var Image in files)
+                    {
+                        if (Image != null && Image.Length > 0)
+                        {
+
+                            var file = Image;
+                            var uploads = Path.Combine(_environment.WebRootPath, "");
+
+                            if (file.Length > 0)
+                            {
+                                var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+
+                                //System.Console.WriteLine(fileName);
+                                using (var fileStream = new FileStream(Path.Combine(uploads, file.FileName), FileMode.Create))
+                                {
+                                    var image = new Image();
+
+                                    await file.CopyToAsync(fileStream);
+                                    image.ImageName = file.FileName;
+                                    post.Images = new List<Image>();
+                                    post.Images.Add(image);
+                                }
+
+
+                            }
+                        }
+                    }
+
+
                     _context.Update(post);
                     await _context.SaveChangesAsync();
                 }
@@ -147,12 +237,25 @@ namespace Blog.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
+            var user = await _userManager.GetUserAsync(HttpContext.User);
+            var userId = user?.Id;
+            var userR = await _userManager.GetRolesAsync(user);
+
+            var post = await _context.Posts.Include(k => k.Images).SingleOrDefaultAsync(m => m.PostId == id);
+
+            if (userR.All(u => u != "Admin"))
+            {
+                if (userId != post.UserId)
+                { return RedirectToAction("AccessDenied", "Account"); }
+            }
+
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Posts.SingleOrDefaultAsync(m => m.PostId == id);
+            //var post = await _context.Posts.SingleOrDefaultAsync(m => m.PostId == id);
             if (post == null)
             {
                 return NotFound();
@@ -171,7 +274,7 @@ namespace Blog.Controllers
             var userId = user?.Id;
             var userR = await _userManager.GetRolesAsync(user);
 
-            var post = await _context.Posts.SingleOrDefaultAsync(m => m.PostId == id);
+            var post = await _context.Posts.Include(k => k.Images).SingleOrDefaultAsync(m => m.PostId == id);
 
             if (userR.All(u => u != "Admin"))
             {
@@ -183,6 +286,25 @@ namespace Blog.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index");
         }
+
+        //[HttpPost]
+        [Authorize(Roles = "Admin")]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteImage(int id)
+        {
+            var im = await _context.Image.SingleOrDefaultAsync(m => m.ImageId == id);
+            var pid = im.PostId;
+            var post = await _context.Posts.SingleOrDefaultAsync(m => m.PostId == pid);
+            _context.Image.Remove(im);
+            var uploads = Path.Combine(_environment.WebRootPath, im.ImageName);
+            System.IO.File.Delete(uploads);
+            await _context.SaveChangesAsync();
+            //return View(post);
+            return RedirectToAction("Edit",new { id = pid });
+
+        }
+
+
 
         private bool PostExists(int id)
         {

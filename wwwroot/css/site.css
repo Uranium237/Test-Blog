@@ -48,3 +48,15 @@ textarea {
     display: none
   }
 }
+
+
+img{
+    width:100%;
+    max-width:200px;
+}
+
+.sample-box{
+    margin: 15px;
+    border: 1px dashed;
+    border-radius: 4px;
+}

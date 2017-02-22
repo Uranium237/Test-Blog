@@ -37,6 +37,16 @@
         </dd>
     </dl>
 </div>
+
+@foreach (var item1 in Model.Images)
+{
+    <div class="sample-box">
+        <a href="/@item1.ImageName" class="MagicZoom" data-options="hint: always; variableZoom: true; zoomDistance: 200">
+            <img src="/@item1.ImageName" alt="image" />
+        </a>
+    </div>
+}
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model.PostId">Edit</a> |
     <a asp-action="Index">Back to List</a>
