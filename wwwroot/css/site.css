@@ -60,3 +60,38 @@ img{
     border: 1px dashed;
     border-radius: 4px;
 }
+
+a.TagSize1
+{
+    font-family: Arial;
+    font-size: 20px;
+    color: #FF0000;
+}
+ 
+a.TagSize2
+{
+    font-family: Arial;
+    font-size: 30px;
+    color: #993333;
+}
+ 
+a.TagSize3
+{
+    font-family: Arial;
+    font-size: 40px;
+    color: #0000FF;
+}
+ 
+a.TagSize4
+{
+    font-family: Arial;
+    font-size: 50px;
+    color: #009900;
+}
+ 
+a.TagSize5
+{
+    font-family: Arial;
+    font-size: 60px;
+    color: #9900FF;
+}

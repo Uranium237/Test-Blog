@@ -1,4 +1,4 @@
-@model Blog.Models.Post
+@model Blog.Models.PostModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -11,7 +11,7 @@
         <h4>Post</h4>
         <hr />
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="PostId" />
+        <input type="hidden" asp-for="PostId" />
         <input type="hidden" asp-for="Author" />
         <input type="hidden" asp-for="UserId" />
         <div class="form-group">
@@ -35,6 +35,23 @@
                 <span asp-validation-for="Title" class="text-danger" />
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-md-2 control-label">Tag</label>
+            <div class="col-md-10">
+                <input asp-for="TagStr" class="form-control" />
+                <span asp-validation-for="TagStr" class="text-danger" />
+            </div>
+        </div> 
+
+        <div class="form-group">
+            <label class="col-md-2 control-label">Category</label>
+            <div class="col-md-10">
+                <select asp-for="CategoryName" asp-items="Model.CategoryNames">
+                    <option value="">All</option>
+                </select>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-md-2 control-label">Post Image</label>
             <div class="col-md-10">

@@ -8,8 +8,8 @@ using Blog.Data;
 namespace Blog.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20170209163202_Initial")]
-    partial class Initial
+    [Migration("20170315120836_PostModelView")]
+    partial class PostModelView
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -66,6 +66,18 @@ namespace Blog.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("Blog.Models.Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("CategoryName");
+
+                    b.HasKey("CategoryId");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("Blog.Models.Comment", b =>
                 {
                     b.Property<int>("CommentId")
@@ -91,12 +103,30 @@ namespace Blog.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("Blog.Models.Image", b =>
+                {
+                    b.Property<int>("ImageId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ImageName");
+
+                    b.Property<int>("PostId");
+
+                    b.HasKey("ImageId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Image");
+                });
+
             modelBuilder.Entity("Blog.Models.Post", b =>
                 {
                     b.Property<int>("PostId")
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Author");
+
+                    b.Property<int>("CategoryId");
 
                     b.Property<DateTime>("ReleaseDate");
 
@@ -110,9 +140,38 @@ namespace Blog.Migrations
 
                     b.HasKey("PostId");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Blog.Models.PostTag", b =>
+                {
+                    b.Property<int>("PostId");
+
+                    b.Property<int>("TagId");
+
+                    b.HasKey("PostId", "TagId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("PostTags");
+                });
+
+            modelBuilder.Entity("Blog.Models.Tag", b =>
+                {
+                    b.Property<int>("TagId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("TagName");
+
+                    b.HasKey("TagId");
+
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
@@ -234,11 +293,37 @@ namespace Blog.Migrations
                         .HasForeignKey("UserId");
                 });
 
+            modelBuilder.Entity("Blog.Models.Image", b =>
+                {
+                    b.HasOne("Blog.Models.Post", "Post")
+                        .WithMany("Images")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Blog.Models.Post", b =>
                 {
+                    b.HasOne("Blog.Models.Category", "Categories")
+                        .WithMany("Posts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Blog.Models.ApplicationUser", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("Blog.Models.PostTag", b =>
+                {
+                    b.HasOne("Blog.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Blog.Models.Tag", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>

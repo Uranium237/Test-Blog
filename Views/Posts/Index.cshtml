@@ -1,4 +1,4 @@
-@model IEnumerable<Blog.Models.Post>
+@model Blog.Models.PostModelView
 
 @{
     ViewData["Title"] = "Index";
@@ -9,26 +9,44 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form asp-controller="Posts" asp-action="Index">
+    <p>
+        <select asp-for="CategoryName" asp-items="Model.CategoryNames">
+            <option value="">All</option>
+        </select>
+
+
+        Tag: <input type="text" name="SearchString">
+        <input type="submit" value="Filter" />
+    </p>
+</form>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)                
+                @Html.DisplayNameFor(model => model.PostModels[0].Title)                
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ReleaseDate)
+                @Html.DisplayNameFor(model => model.PostModels[0].ReleaseDate)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Text)
+                @Html.DisplayNameFor(model => model.PostModels[0].Text)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Author)
+                @Html.DisplayNameFor(model => model.PostModels[0].Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostModels[0].TagStr)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostModels[0].CategoryName)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.PostModels) {
         <tr>
             <td>
                 @Html.DisplayFor(x => item.Title)
@@ -41,6 +59,12 @@
             </td>
             <td>
                 @Html.DisplayFor(x => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(x => item.TagStr)
+            </td>
+            <td>
+                @Html.DisplayFor(x => item.CategoryName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
